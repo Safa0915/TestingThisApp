@@ -1,0 +1,16 @@
+{
+  "name": "Maghrib Prayer & Weather Alert",
+  "short_name": "Maghrib Alert",
+  "description": "Islamic prayer time tracker with weather notifications",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F766E",
+  "theme_color": "#0F766E",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiMwRjc2NkUiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPgo8cGF0aCBkPSJNMTIgMmMtNS41MjMgMC0xMCA0LjQ3Ny0xMCAxMCAwIDMuMDkgMS40MDcgNS44NDkgMy42MDkgNy42NTZsLS4yNzMuODE5YS41LjUgMCAwIDAgLjQ3NC42NTJsMy4zOC0uNTYzYS41LjUgMCAwIDAgLjMxLS44ODZsLTEuMjMzLTEuODVhOCA4IDAgMSAxIDcuMDQ2IDBsLTEuMjMzIDEuODVhLjUuNSAwIDAgMCAuMzEuODg2bDMuMzguNTYzYS41LjUgMCAwIDAgLjQ3NC0uNjUybC0uMjczLS44MTlDMjAuNTkzIDE3Ljg0OSAyMiAxNS4wOSAyMiAxMiAyMiA2LjQ3NyAxNy41MjMgMiAxMiAyeiIvPgo8L3N2Zz4KPC9zdmc+",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}
