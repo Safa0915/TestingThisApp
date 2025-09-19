@@ -113,20 +113,20 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen maghrib-gradient islamic-pattern overflow-x-hidden w-full max-w-full">
+    <div className="min-h-screen maghrib-gradient islamic-pattern overflow-hidden w-full">
       {state.notificationPermission !== 'granted' && (
         <NotificationBanner onRequestPermission={requestNotificationPermission} />
       )}
       
-      <div className="w-full max-w-md mx-auto px-4 py-6">
+      <div className="w-full max-w-md mx-auto px-4 py-6 relative">
         {/* Header */}
-        <div className="text-center text-white mb-8 animate-fadeInUp relative w-full">
+        <div className="text-center text-white mb-8 animate-fadeInUp w-full">
           <div className="mb-4">
             <h2 className="text-lg arabic-font opacity-80 mb-2">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</h2>
             <h1 className="text-4xl font-bold mb-2 prayer-name">Maghrib Alert</h1>
             <p className="text-sm opacity-75 italic">Your spiritual companion for prayer and reflection</p>
           </div>
-          <div className="flex items-center justify-center gap-2 text-sm opacity-90 bg-black/20 rounded-full px-4 py-2 backdrop-blur-sm max-w-full">
+          <div className="flex items-center justify-center gap-2 text-sm opacity-90 bg-black/20 rounded-full px-4 py-2 backdrop-blur-sm">
             <MapPin className="w-4 h-4" />
             <span className="truncate">{state.location?.city || 'Unknown Location'}</span>
           </div>
@@ -134,7 +134,7 @@ function App() {
 
         {/* Prayer Times Card */}
         {state.prayerTimes && (
-          <div className="prayer-card rounded-2xl p-6 mb-6 animate-fadeInUp w-full">
+          <div className="prayer-card rounded-2xl p-6 mb-6 animate-fadeInUp">
             <PrayerTimes 
               prayerTimes={state.prayerTimes}
               location={state.location}
@@ -144,7 +144,7 @@ function App() {
 
         {/* Weather Alert Card */}
         {state.weather && (
-          <div className="weather-card rounded-2xl p-6 mb-6 animate-fadeInUp w-full">
+          <div className="weather-card rounded-2xl p-6 mb-6 animate-fadeInUp">
             <WeatherAlert weather={state.weather} />
           </div>
         )}
@@ -153,7 +153,7 @@ function App() {
         <div className="text-center mb-6">
           <button
             onClick={() => setState(prev => ({ ...prev, showSettings: true }))}
-            className="settings-button text-white px-8 py-4 rounded-full flex items-center gap-3 mx-auto font-medium max-w-full"
+            className="settings-button text-white px-8 py-4 rounded-full flex items-center gap-3 mx-auto font-medium"
           >
             <Settings className="w-5 h-5 animate-spin" style={{animationDuration: '8s'}} />
             Settings & Alerts

@@ -16,8 +16,14 @@ html, body, #root {
   overflow-x: hidden;
   max-width: 100vw;
   box-sizing: border-box;
-  scrollbar-width: auto;
-  scrollbar-color: auto;
+  scrollbar-width: none;
+}
+
+/* Hide scrollbars */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+#root::-webkit-scrollbar {
+  display: none;
 }
 
 /* Enhanced Gradients */
@@ -35,6 +41,7 @@ html, body, #root {
   overflow-x: hidden;
   width: 100%;
   max-width: 100vw;
+  min-height: 100vh;
 }
 
 .maghrib-gradient::before {
