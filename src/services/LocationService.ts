@@ -2,10 +2,13 @@ export class LocationService {
   static async getCurrentLocation(): Promise<{ lat: number; lng: number; city: string }> {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
-        reject(new Error('Geolocation is not supported by this browser. Please enable location services in your browser settings.'));
+        reject(new Error('Location services not supported. Please use a modern browser with GPS capability.'));
         return;
       }
 
+      // Check if we're on mobile Safari and provide specific instructions
+      const isMobileSafari = /iPhone|iPad|iPod/.test(navigator.userAgent) && /Safari/.test(navigator.userAgent);
+      
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude: lat, longitude: lng } = position.coords;
@@ -20,20 +23,24 @@ export class LocationService {
           }
         },
         (error) => {
-          let errorMessage = 'Location access denied. ';
+          let errorMessage = '';
           
           switch (error.code) {
             case error.PERMISSION_DENIED:
-              errorMessage += 'Please allow location access in your browser settings. On iPhone: Settings > Safari > Location Services > Allow.';
+              if (isMobileSafari) {
+                errorMessage = 'Location blocked. Please:\n\n1. Go to iPhone Settings > Privacy & Security > Location Services\n2. Turn ON Location Services\n3. Scroll down to Safari\n4. Select "While Using App"\n5. Refresh this page';
+              } else {
+                errorMessage = 'Location access denied. Please allow location access when prompted, or check your browser settings.';
+              }
               break;
             case error.POSITION_UNAVAILABLE:
-              errorMessage += 'Location information is unavailable. Please check your GPS/location services.';
+              errorMessage = 'GPS unavailable. Please:\n• Turn on Location Services\n• Move to an area with better GPS signal\n• Try refreshing the page';
               break;
             case error.TIMEOUT:
-              errorMessage += 'Location request timed out. Please try again.';
+              errorMessage = 'Location request timed out. Please try refreshing the page or check your internet connection.';
               break;
             default:
-              errorMessage += error.message;
+              errorMessage = `Location error: ${error.message}. Please try refreshing the page.`;
               break;
           }
           
@@ -41,11 +48,25 @@ export class LocationService {
         },
         {
           enableHighAccuracy: true,
-          timeout: 15000, // Increased timeout for slower connections
-          maximumAge: 300000 // 5 minutes
+          timeout: 20000, // Increased timeout for mobile
+          maximumAge: 600000 // 10 minutes cache
         }
       );
     });
+  }
+
+  static async requestLocationWithFallback(): Promise<{ lat: number; lng: number; city: string }> {
+    try {
+      return await this.getCurrentLocation();
+    } catch (error) {
+      // Provide fallback location (Mecca) if location fails
+      console.warn('Location failed, using fallback:', error);
+      return {
+        lat: 21.4225,
+        lng: 39.8262,
+        city: 'Mecca (Fallback)'
+      };
+    }
   }
 
   private static async getCityName(lat: number, lng: number): Promise<string> {

@@ -37,8 +37,22 @@ function App() {
       // Register service worker
       await NotificationService.registerServiceWorker();
       
-      // Get location
-      const location = await LocationService.getCurrentLocation();
+      // Get location with better error handling
+      let location;
+      try {
+        location = await LocationService.getCurrentLocation();
+      } catch (locationError) {
+        // Show user-friendly error and ask if they want to use fallback
+        const usesFallback = confirm(
+          `${locationError instanceof Error ? locationError.message : 'Location access failed'}\n\nWould you like to use Mecca as the default location for prayer times?`
+        );
+        
+        if (usesFallback) {
+          location = await LocationService.requestLocationWithFallback();
+        } else {
+          throw locationError;
+        }
+      }
       
       // Get prayer times
       const prayerTimes = await PrayerService.getPrayerTimes(location.lat, location.lng);
@@ -63,7 +77,8 @@ function App() {
       setState(prev => ({ ...prev, loading: false }));
       
       // Show error message to user
-      alert(`Unable to initialize app: ${error instanceof Error ? error.message : 'Unknown error'}. Please refresh and allow location access.`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      alert(`Unable to load prayer times:\n\n${errorMessage}\n\nPlease refresh the page and try again.`);
     }
   };
 

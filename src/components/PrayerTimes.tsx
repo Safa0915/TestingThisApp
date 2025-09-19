@@ -97,13 +97,20 @@ const PrayerTimes: React.FC<PrayerTimesProps> = ({ prayerTimes, location }) => {
       </div>
 
       <div className="mt-6 text-sm text-center bg-black/60 rounded-full px-6 py-3 backdrop-blur-sm border border-white/30">
-        <span className="text-white font-semibold">📅 {' '}
+        <span className="text-white font-semibold">
+        📅 {' '}
         {new Date().toLocaleDateString('en-US', { 
           weekday: 'long', 
           year: 'numeric', 
           month: 'long', 
           day: 'numeric' 
-        })}</span>
+        })}
+        {location?.city?.includes('Fallback') && (
+          <div className="text-xs text-yellow-200 mt-2">
+            ⚠️ Using default location - Enable GPS for accurate times
+          </div>
+        )}
+        </span>
       </div>
     </div>
   );
