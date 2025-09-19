@@ -4,6 +4,7 @@ import PrayerTimes from './components/PrayerTimes';
 import WeatherAlert from './components/WeatherAlert';
 import SettingsPanel from './components/SettingsPanel';
 import NotificationBanner from './components/NotificationBanner';
+import LocationSelector from './components/LocationSelector';
 import { LocationService } from './services/LocationService';
 import { PrayerService } from './services/PrayerService';
 import { WeatherService } from './services/WeatherService';
@@ -16,6 +17,8 @@ interface AppState {
   loading: boolean;
   showSettings: boolean;
   notificationPermission: string;
+  showLocationSelector: boolean;
+  locationError: string | null;
 }
 
 function App() {
@@ -25,7 +28,9 @@ function App() {
     weather: null,
     loading: true,
     showSettings: false,
-    notificationPermission: 'default'
+    notificationPermission: 'default',
+    showLocationSelector: false,
+    locationError: null
   });
 
   useEffect(() => {
@@ -37,23 +42,34 @@ function App() {
       // Register service worker
       await NotificationService.registerServiceWorker();
       
-      // Get location with better error handling
-      let location;
+      // Try to get location automatically first
       try {
-        location = await LocationService.getCurrentLocation();
+        const location = await LocationService.getCurrentLocation();
+        await loadPrayerData(location);
       } catch (locationError) {
-        // Show user-friendly error and ask if they want to use fallback
-        const usesFallback = confirm(
-          `${locationError instanceof Error ? locationError.message : 'Location access failed'}\n\nWould you like to use Mecca as the default location for prayer times?`
-        );
-        
-        if (usesFallback) {
-          location = await LocationService.requestLocationWithFallback();
-        } else {
-          throw locationError;
-        }
+        // If location fails, show location selector instead of error
+        setState(prev => ({
+          ...prev,
+          loading: false,
+          showLocationSelector: true,
+          locationError: locationError instanceof Error ? locationError.message : 'Location access failed',
+          notificationPermission: Notification.permission
+        }));
       }
       
+    } catch (error) {
+      console.error('Error initializing app:', error);
+      setState(prev => ({ 
+        ...prev, 
+        loading: false,
+        showLocationSelector: true,
+        locationError: error instanceof Error ? error.message : 'Unknown error occurred'
+      }));
+    }
+  };
+
+  const loadPrayerData = async (location: { lat: number; lng: number; city: string }) => {
+    try {
       // Get prayer times
       const prayerTimes = await PrayerService.getPrayerTimes(location.lat, location.lng);
       
@@ -66,20 +82,26 @@ function App() {
         prayerTimes,
         weather,
         loading: false,
+        showLocationSelector: false,
+        locationError: null,
         notificationPermission: Notification.permission
       }));
 
       // Setup periodic checks
       NotificationService.setupPeriodicChecks(location, prayerTimes);
-      
     } catch (error) {
-      console.error('Error initializing app:', error);
-      setState(prev => ({ ...prev, loading: false }));
-      
-      // Show error message to user
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      alert(`Unable to load prayer times:\n\n${errorMessage}\n\nPlease refresh the page and try again.`);
+      console.error('Error loading prayer data:', error);
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        locationError: error instanceof Error ? error.message : 'Failed to load prayer data'
+      }));
     }
+  };
+
+  const handleLocationSelect = async (location: { lat: number; lng: number; city: string }) => {
+    setState(prev => ({ ...prev, loading: true, showLocationSelector: false }));
+    await loadPrayerData(location);
   };
 
   const requestNotificationPermission = async () => {
@@ -87,6 +109,33 @@ function App() {
     setState(prev => ({ ...prev, notificationPermission: permission }));
   };
 
+  // Show location selector if needed
+  if (state.showLocationSelector) {
+    return (
+      <div className="min-h-screen maghrib-gradient islamic-pattern flex items-center justify-center relative overflow-hidden">
+        <LocationSelector
+          onLocationSelect={handleLocationSelect}
+          onClose={() => setState(prev => ({ ...prev, showLocationSelector: false, loading: false }))}
+        />
+        
+        {/* Background content */}
+        <div className="text-center text-white animate-fadeInUp z-0 max-w-sm mx-auto px-6 opacity-50">
+          <Clock className="w-24 h-24 mx-auto animate-float text-amber-300 drop-shadow-2xl mb-6" />
+          <div className="bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-white/20 shadow-2xl">
+            <h2 className="text-2xl font-bold mb-4 arabic-font text-amber-100 drop-shadow-lg">
+              بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ
+            </h2>
+            <h3 className="text-2xl font-bold mb-3 text-white drop-shadow-lg">
+              Maghrib Alert
+            </h3>
+            <p className="text-base text-gray-200 mb-6 leading-relaxed drop-shadow-md">
+              Your spiritual companion for prayer and reflection
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (state.loading) {
     return (
       <div className="min-h-screen maghrib-gradient islamic-pattern flex items-center justify-center relative overflow-hidden">
@@ -188,6 +237,16 @@ function App() {
             location={state.location}
           />
         )}
+
+        {/* Change Location Button */}
+        <div className="text-center mt-4">
+          <button
+            onClick={() => setState(prev => ({ ...prev, showLocationSelector: true }))}
+            className="text-white/70 hover:text-white text-sm underline transition-all duration-300"
+          >
+            📍 Change Location
+          </button>
+        </div>
       </div>
     </div>
   );
